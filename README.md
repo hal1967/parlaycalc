@@ -3,18 +3,14 @@ QT C++ Parlay Calc
 
 This a little QC C++ programa crated just in order to learn.
 
-
 This project briefly explores
 
-    Qt c++ structure
-    Signal/Slot, Auto-Connection
-    Edit control and Validator
-    QActionGroup
-    listWidget
-    menu (action)
-    Conclusion
-
-
+Qt c++ structure    
+Signal/Slot, Auto-Connection
+Edit control and Validator
+QActionGroup
+listWidget
+menu (action)
 
 
 This is a "parlay calculator".
