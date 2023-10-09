@@ -1,7 +1,7 @@
 # parlaycalc
 # QT C++ Parlay Calc
 
-This a little QC C++ programa crated just in order to learn.
+This a little QC C++ programa created just in order to learn.
 
 This is a "parlay calculator".
 
