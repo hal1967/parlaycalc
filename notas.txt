@@ -1,0 +1,248 @@
+Este es un pequeño programa QC C++ creado solo para aprender.
+
+
+Este proyecto explora brevemente sobre
+
+    Qt c++, estructura
+    Status bar
+    Signal/Slot, Auto-Connection
+    Edit control and Validator
+    QActionGroup
+    listWidget
+    menu (action)
+
+
+
+
+Esta es una "calculadora parlay".
+
+(https://www.oddsshark.com/tools/parlay-calculator)
+
+Este tipo de calculadora se utiliza para determinar el rendimiento de alguna apuesta. Esta apuesta se supone que combina diferentes eventos deportivos, cada evento tiene un coeficiente. Este coeficiente incrementa el valor devuelto de la apuesta. En principio cada acierto una simple multiplicación.
+
+Por ejemplo. Imagínese, 2 eventos, el primer acierto paga 2,80, el segundo 0,80. Haciendo una apuesta de 10.
+
+ 10.00 x Primer event  2.80  -> Pago 28.00  (gana 18,00)
+ 28.00 x Segundo event 1.20  -> Pago 33,60  (gana 23,60)
+
+
+Todas las apuestas se deben acertar y cada acierto incrementa su retorno. Entonces cada coeficiente debe ser mayor que 1. Necesitamos validar esto.
+
+Hay 3 notaciones diferentes: Decimal, Americana, Fraccionaria (lo dejamos para otro proyecto)
+
+
+La notación americana supone valores positivos y negativos.
+
+ +180 (not. americana) es 2.8 decimal.  El valor americano se divide entre 100 + más 1. 180/100 + 1.
+ pero, valores negativos como -120 se calcula de forma distinta  1 + 100/(not. Americana), asi   1 - 100/(-120), da 1.833
+
+
+
+Con lo anterior tendremos oportunidad de leer numeros y validar rango, decimales, etc.
+Necesitaremos alguna artimética para conversion entre notaciones.
+Entre los controles y la lógica requerimos manejar señales. Y bueno, los controles serán unos dos botones (agregar, borrar), dos controles para leer números que nos de el usuario. Y como este tipo de apuestas tiene una lista de eventos deportivos, será últi algún control tipo lista que mostrará valores a medida que se escriban.
+
+
+
+
+
+Qt c++, estructura
+==================
+
+
+Tenemos algunos archivos generados de forma automática, basicamente por el diseñador de Qt, y otros que se nos entregan inicialmente por luego de que se crea el proyecto.
+
+    "main.cpp"   que realmente no tocamos y es lo básico de c++ para arrancar.
+
+    "mainwindows.ui"  (ui = user interface) que es un archivo xml con la disposición de controles. Asi como las propiedades que no tiene su valor por defecto.
+    Qt nos da un editor gráfico para mover controles/widgets, cambiar propiedades, atributos y etc y genera el resultado de esto en el archivo ui. Así que no tenemos que
+    hacerlo nosotros mismos, esto es "Design mode".
+
+    "mainwindows.cpp" que junto a "mainwindows.h" es donde las cosas se hacen interesante. Aqui, en la clase MainWindow, se establecen los elementos que van dentro de nuestro formulario.
+
+Como elementos de la clase "MainWindow" vamos a definir, algunos elementos que necesitamos (y no son o pueden ser creados vía  "Modo Design" de Qt). Entre otros una rutina para hacer los calculos de parlay, un par de "validator" y un "ActionGroup"
+
+Lo primero que se nos ha presentado en el "design mode"  es un formulario, con un "Type Here", un área punteada (grilla que nos sirve de referencia a la posicion de widgets) y una barra de status abajo. El statusbar nos permite dar mensajes que permanencen sin estorbar mucho. En nuestro caso habremos de notificar el tipo de notación que estamos usando.
+
+En lo personal, me resulta algo incómodo el manejo de menús, y es raro que no se pueda hacer clic directamente en el "status bar". Para modificar las propiedades de del status bar tenemos a la derecha arriba un inspector de onjetos (Object inspector) donde podemos busca y seleccionar controles, en este caso el status bar. Seleecionado el status bar sin embargo no hay mucho que nos interese.
+
+Hemos definido un menu, a nivel superior "File" y "Mode". Debajo de "File" se define "Exit" (luego se define un slot para hacer exit). Al lado bajo "mode" tenemos "Fractional", "American" y "Decimal".
+
+
+Status bar
+==========
+
+Es la barra abajo en el formulario, solo la usaremos para mostrar un texto que señalará la notación como Decimal o American.
+
+Para ello tenemos dos formas, podemos usar showMessade de ese control, ejemplo:
+
+    ui->statusbar->showMessage("American notation");
+
+
+Pero cuando se pasa, por ejemplo, el ratón sobre el menú se borra. Hay otra solución.
+
+El status bar puede contener un Widget (aqui suelo referirlo como control) como una "Label", algo así:
+
+    ui->statusBar->addPermanentWidget(statusLabel);
+
+Luego le asignamos un texto a ese label en lugar de llamar ShowMessage, debemos por ello crear definir en la clase MainWindows este label. Lo definimos debajo de la seccion private, no olvidar que requerimos #include <QLabel> al prionicpio del archivo. La definición es:
+
+    QLabel *statusLabel;
+
+En la sección private de la clase MainWindows iremos colocando, los controles (widgets) que necesitemos crear por código.
+
+Al contruír la clase creamos el widget nuestro statusLabel y lo asignamos al statusbar.
+
+    statusLabel = new QLabel(this);
+    ui->statusBar->addPermanentWidget(statusLabel);
+
+
+
+
+Signal/Slot, Auto-Connection
+============================
+
+El mecanismo para conectar un widget con una operación o código en C++ es Signal/Slot. Por ejemplo tenemos un botón "Clear all" que hace una limpieza general.
+
+
+    Desde "design mode"
+    ===================
+
+    Para crear todo lo necesario desde el "Design Mode" debe seleccionar el widget y hacer clic derecho sobre el mismo (en este caso el botón que tiene el texto "Clear all"). Debemos ver la opción "Go to slot", al seleccionarla tendremos acceso a distintas señales que este widget puede generar. Nos interesa "clicked()", seleccionado este se crea (si no existe ya) un método de la clase MainWindows, de hecho en la sección slot de la clase, con el nombre del control, nombre de señal y un prefijo "on_", ( on_btnClear_clicked ). En este método colocamos el código de lo que queremos se realice. En este caso se ejecuta clear de varios elementos en el formulario.
+
+
+    El mecanismo para que una "signal" dispare el "slot" requiere una conexión. Con el método que se ha usado aquí (el cual prefiero) Qt se encarga de hacer esa conexión sin que lo veamos.
+
+    En este proyecto se usó el método anterior para varios widget. No todo nos da la opción "Go to slot" desde el diseñador de Qt. En este caso también tenemos la acción Exit del menú.
+
+
+    "Signal and slot editor"
+    ========================
+
+    El diseñador de Qt, muestra una tabla donde se establece  conexiones entre señales y slots. Esto es 4 columnas o elementos que respectivamente son los que emiten la señal, cual es la señal, quien recibe y en cual slot.
+
+    En este proyecto se creó una entrada de esta forma. Bajo la columna "sender" se nos permite seleccionar entre distintos elementos, aquí selecionamos "ActionExit" que fue definido como una entrada debajo del menú "File" (todo esto usando el diseñador). Esta opcion no tiene un click como tal sino "triggered" como señal. Al recibir esta señal queremos que el formulario se cierre. Así el receptor es MainWindow y se envía a un slot llamado close() que precisamente cierra el formulario. Siendo el único formulario de esta aplicación  y el principal al cerrarlo se termina la aplicación.
+
+    Esta tabla corresponde a las conexiones signal y slot. Y en este caso no hemos tenido que escribir código alguno.
+
+    Además de la acción Exit tenemos las que definen la notación a utilizar. En este caso no tenemos un slot predefinido que queramos activar. De hecho queremos hacer varias cosas, a saber:
+
+    Cambiar la validación de la entrada de datos. Decimal y amaricano difieren en rango.
+    Cambiar el texto de indicio de la caja de edición según corresponda.       Cambiar la etiqueta dentro del statusbar.
+
+    Seguramente podemos manejar algo de esto desde "Signal and slot editor", pero la validación no es definir una propiedad y requiere crear ciertos elementos que no estan en momento de diseño. Por otro lado no escribimos al status sino a widget que está dentro de él (un label dentro del status bar) y no existe en tiempo de diseño. Así que nos pasamos al "Action Editor".
+
+    "Action Editor"
+    ===============
+
+    Este elemento (vista) del diseñador nos muestra las acciones definidas (todas las del menú). Seleccionamos ActionDecimal, clic derecho "go to slot". Seleccionamos allí "Triggered()" y de inmediato terminamos en el archivo de cpp donde se define un método como slot de MainWindows.
+
+    En este código ya es posible acceder al statusLabel (que no está definido en tiempo de diseño, sino por código). Aquí entonces hacemos las distintas operaciones que afecta el cambio de notación (luego se explican).
+
+    Es de notar que en este proyecto se ha creado "on_actionAmerican_triggered()" y "setdecimalvalidator()", uno para el modo Americano y otro para decimal. El primero desde "action editor" y nótese que comienza por "on_" así que es conectado automáticamente. El segundo se generó por código.
+
+
+    "Código"
+    ========
+
+    "setdecimalvalidator" fue creado en la definición de la clase MainWindow como slot. Luego se define como un método de la clase en el archivo MainWindon.cpp. Esto no lo ha creado el diseñador de Qt sino que es código escrito en forma simple u directa, y por ello Qt no genera la conexión signal/slot y por ello en el constructor de la clase MainWindow incluímos esta sentencia
+
+    connect(ui->actionDecimal, SIGNAL(triggered()), this, SLOT(setdecimalvalidator()));
+
+    y voila...
+
+
+    Auto-Connection
+    ===============
+
+    La auto conexión implica que el framework de Qt toma el nombre de los métodos definidos en la seccion slot dentro de la clase y analiza si corresponden a la forma:
+
+        on_<sender_name>_<signal-name>
+
+    De corresponder construye la conexion de forma automática. El compilador genera un warning al respecto y es interesante dar una lectura  sobre lo que implica. Hay que tener cuidado de no cambiar el nombre de un widget que tiene un enlace signal/slot porque se puede perder esa conexión con el potencial de ser una falla dificil de detectar.
+
+
+
+Edit widget y Validator
+=======================
+
+Tenemos dos campos de entradas de datos, esto sería el monto a apostar (un número de punto flotante) y el coeficiente (odd) de cada apuesta (modo decimal o americano, quizás en un futuro modo fracional).
+
+El widget para recibir el monto apostado ha sido llamado "edwager", en la parte de arriba del formulario junto a una etiqueta con el texto "Total wager".
+
+QT permite asignar instancias de la clase QValidator para establecer cuando un texto sea aceptable como entrada de datos. QT trae predefinido entre otros QDoubleValidator que construímos con los parámetros de definen rango (mínimo y máximo) así como cantidad de decimales.
+
+Definimos betvalidator como QDoubleValidator y lo asociamos a edwagger.
+
+    betvalidator = new QDoubleValidator(0.0, 100000.0, 2); // with 2 decimals of precision
+    ui->edwagger->setValidatorbetvalidator(dv);
+
+Se crea también un validor para los coeficientes, pero ligeramente distinto. En este caso el valor mínimo es 1
+
+    decmodevalidator = new QDoubleValidator(1.0, 100000.0, 2); // Minimal 1, with 2 decimals of precision
+
+decmodevalidator que es un QValidator no es asignado en la construccion de MainWindows, se asigna cuando se establece modo decimal, y cuando se establece modo Americano se establece otro validator. Basicamente movemos el mismo campo entre dos validator segun sea el modo elegido por el usuario.
+
+    amermodevalidator= new QDoubleValidator(); // No range, but decimals
+    amermodevalidator->setDecimals(2);
+    ui->edOdd->setValidator(amermodevalidator);
+
+
+NOTA: betvalidator, decmodevalidator no han sido asociados a un "parent" (aunqune es posible). Como no tienen parent su eliminación debe ser codificada. En el destructor de la clase MainVindows se hace el delete correspondiente que libera el uso de memoria y recursos.
+
+
+Tenemos un botón que procesa cada coeficiente (odd), copiando a una lista y calculando el total a ganar. Ese botón nombrado btnAdd tiene un slot asociado (desde el designer) que hace lo requerido.
+
+Además el widget de edicion de coeficiente (edOdd) estamos disparando una señal al slot on_edOdd_returnPressed(), y este a su vez llama al slot asociado al botón.
+
+Lo anterior no es la buena práctica (me parece recordar que es un anti-patrón de diseño). Tenemos varias opciones:
+
+
+Cada widget genera una señal y se asocia a un slot/método que hace la operación (calcular y agregar en lista, esto es repetivo).
+
+Cada widget genera un señal y se apuntan en el mismo slot. Es interesante y perfectamente válido, pero hay que hacerlo por código, el diseñador de QT, en la forma que hemos usado, no nos hace fácil eso, usando el modo de diseño "Edit Slot/Signal" si debe ser posible, solo que no es parte del objetivo de este  proyecto.
+
+Tenemos dos señales desde dos fuentes distintas, que va a dos slots distintos, uno slot llama al otro. Es como se está haciendo actualmente en el proyecto. Como yo quería demostrar que un slot/método puede ser llamado directamente es el camino tomado, sin embargo lo sensato es opción siguiente.
+
+Crear una rutina privada de la clase que haga el cálculo y agregue el valor a la lista. Cada slot hace la llamada a esta rutina privada.
+
+
+
+QActionGroup
+============
+
+Cada "action" asociado a un menú puede funcionar como una caja de selección (Checkbox), pero nos interesa más bien como un botón de radio  (los viejos radios análogicos de los vehículos donde se seleccionaba una emisora presionando un botón y el botón de la anterior selección emergía). Esto se logra en QT definiendo un grupo dentro del cual están las "Actions" que son excluyentes entre si (Si se selecciona Decimal, se deselecciona de forma automática cualquier otro modo). Tenemos para ello QActionGroup.
+
+    alignmentGroup = new QActionGroup(this);
+
+// luego de definido el grupo se asocian las acciones parte del mismo.
+
+    alignmentGroup->addAction(ui->actionAmerican);
+    alignmentGroup->addAction(ui->actionDecimal);
+    alignmentGroup->addAction(ui->actionFractional);
+
+
+Ya con esto veremos que el menú que antes tenía un cuadrado con un simbolo de Check ahora es un circulo.
+
+
+listWidget
+==========
+
+Cada coeficiente (odd) que procesamos se anota en una lista, (listwidget). La razón de ello en principio es casi estética, dejarle como un historial al usuario. Pero la idea era eventualmente poder eliminar algún elemento de la lista con un clic derecho. Queda como algo por hacer.
+
+En todo caso con este widget lo único que hacemos es agregar líneas  esto es addItem.
+
+    ui->listWidget->addItem( <string> );
+
+
+menu (action)
+=============
+
+El menú se arma en el diseñador de Qt, en particular se han generado cada submenu como una accion separada; para salida y para seleccionar modo, nada más.
+
+
+
+Conclusión
+==========
+
+Este pequeño proyecto esta más relacionado a como se arma una interfaz de usuario en QT que a la programación de C++. No hemos trabajado con clase más allá de modificar algunos métodos como slots. Hemos hecho solo cosas básicas en este respecto, pero esperemos que deje claro como en princiipio logramos un programa con interfaz gráfia usando QT. Quizás en el proximo proyecto podamos usar Vectores, Listas o algun otro elemento propio de C++.
