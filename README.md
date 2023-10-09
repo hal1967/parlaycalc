@@ -57,13 +57,13 @@ Qt c++ structure
 
 We have some files generated automatically, basically by the Qt designer, and others that are initially given to us after the project is created.
 
-    "main.cpp" which we didn't really touch and is the basic cpp to star.
+"main.cpp" which we didn't really touch and is the basic cpp to star.
 
-    "mainwindows.ui" (ui = user interface) which is an xml file with the layout of controls. As well as some properties.
+"mainwindows.ui" (ui = user interface) which is an xml file with the layout of controls. As well as some properties.
 
-     Qt gives us a graphical editor to move and change controls/widget, properties, attributes and etc. and generates the result of this in the ui file. So we don't have to  do it ourselves, this is "Design mode".
+Qt gives us a graphical editor to move and change controls/widget, properties, attributes and etc. and generates the result of this in the ui file. So we don't have to  do it ourselves, this is "Design mode".
 
-     "mainwindows.cpp" which along with "mainwindows.h" is where things get interesting. Here, in the MainWindow class, the elements that go inside our form are established.
+"mainwindows.cpp" which along with "mainwindows.h" is where things get interesting. Here, in the MainWindow class, the elements that go inside our form are established.
 
 As elements of the "MainWindow" class we are going to define some elements that we need (and are not or can be created via Qt's "Design Mode"). Among others, a routine to do parlay calculations, a pair of "validator" and an "ActionGroup".
 
@@ -74,10 +74,6 @@ The first thing that has been presented to us in the "design mode" is a form, wi
 Personally, I find menu management somewhat uncomfortable, and it is strange that you cannot click directly on the "status bar". To modify the properties of the status bar we have on the top right an Object inspector where we can search and select controls, in this case the status bar. Once the status bar is selected, however, there is not much that interests us.
 
 We have defined a menu, at the top level "File" and "Mode". Under "File" "Exit" is defined (then a slot is defined to exit). Next under "mode" we have "Fractional", "American" and "Decimal".
-
-
-
-
 
 Status bar
 ==========
@@ -110,69 +106,66 @@ When building the class we create our statusLabel widget and assign it to the st
     ui->statusBar->addPermanentWidget(statusLabel);
 
 
-
-
-
 Signal/Slot, Auto-Connection
 ============================
 
 The mechanism for connecting a widget to an operation or code in C++ is Signal/Slot. For example we have a "Clear all" button that does a general cleaning.
 
 
-    In "design mode"
-    ================
+In "design mode"
+================
 
-    To create everything necessary from "Design Mode" you must select the widget and right click on it (in this case the button that has the text "Clear all"). We must see the "Go to slot" option; by selecting it we will have access to different signals that this widget can generate. We are interested in "clicked()", selecting this a method of the MainWindows class is created (if it does not already exist), in fact in the slot section of the class, with the control name, signal name and a prefix "on_" , (on_btnClear_clicked). In this method we place the code of what we want to be done. In this case, clear of several elements in the form is executed.
+To create everything necessary from "Design Mode" you must select the widget and right click on it (in this case the button that has the text "Clear all"). We must see the "Go to slot" option; by selecting it we will have access to different signals that this widget can generate. We are interested in "clicked()", selecting this a method of the MainWindows class is created (if it does not already exist), in fact in the slot section of the class, with the control name, signal name and a prefix "on_" , (on_btnClear_clicked). In this method we place the code of what we want to be done. In this case, clear of several elements in the form is executed.
 
-    The mechanism for a signal to trigger the slot requires a connection. With the method that has been used here (which I prefer) Qt is responsible for making that connection without us seeing it.
+The mechanism for a signal to trigger the slot requires a connection. With the method that has been used here (which I prefer) Qt is responsible for making that connection without us seeing it.
 
-    In this project the above method was used for several widgets. Not everything gives us the "Go to slot" option from the Qt designer. In this case we also have the Exit action from the menu.
+In this project the above method was used for several widgets. Not everything gives us the "Go to slot" option from the Qt designer. In this case we also have the Exit action from the menu.
 
 
-    "Signal and slot editor"
-    ========================
+"Signal and slot editor"
+========================
 
-    The Qt designer shows a table where connections are established between signals and slots. This is 4 columns or elements that respectively are those that emit the signal, what the signal is, who receives it and in which slot.
+The Qt designer shows a table where connections are established between signals and slots. This is 4 columns or elements that respectively are those that emit the signal, what the signal is, who receives it and in which slot.
 
-    In this project an entry was created like this. Under the "sender" column we are allowed to select between different elements, here we select "ActionExit" which was defined as an entry under the "File" menu (all this using the designer). This option does not have a click as such but rather "triggered" as a signal. Upon receiving this signal we want the form to close. Thus the receiver is MainWindow and it is sent to a slot called close() which precisely closes the form. Being the only form of this application and the main one, closing it terminates the application.
+In this project an entry was created like this. Under the "sender" column we are allowed to select between different elements, here we select "ActionExit" which was defined as an entry under the "File" menu (all this using the designer). This option does not have a click as such but rather "triggered" as a signal. Upon receiving this signal we want the form to close. Thus the receiver is MainWindow and it is sent to a slot called close() which precisely closes the form. Being the only form of this application and the main one, closing it terminates the application.
 
-    This table corresponds to the signal and slot connections. And in this case we have not had to write any code.
+This table corresponds to the signal and slot connections. And in this case we have not had to write any code.
 
-    In addition to the Exit action we have those that define the notation to use. In this case we do not have a predefined slot that we want to activate. In fact we want to do several things:
+In addition to the Exit action we have those that define the notation to use. In this case we do not have a predefined slot that we want to activate. In fact we want to do several things:
 
         Change data entry validation. Decimal and American differ in range.
         Change the hint text in the edit box as appropriate.
         Change the label within the statusbar.
 
-    Surely we can handle some of this from the "Signal and slot editor", but validation is not defining a property and requires creating certain elements that are not at design time. On the other hand, we do not write to the status but to a widget that is inside it (a label inside the status bar) and does not exist at design time. So we move on to the "Action Editor".
+Surely we can handle some of this from the "Signal and slot editor", but validation is not defining a property and requires creating certain elements that are not at design time. On the other hand, we do not write to the status but to a widget that is inside it (a label inside the status bar) and does not exist at design time. So we move on to the "Action Editor".
 
-    "Action Editor"
-    ===============
+"Action Editor"
+===============
 
-    This element (view) of the designer shows us the defined actions (all those in the menu). We select ActionDecimal, right click "go to slot". We select "Triggered()" there and immediately end up in the cpp file where a method is defined as MainWindows slot.
+This element (view) of the designer shows us the defined actions (all those in the menu). We select ActionDecimal, right click "go to slot". We select "Triggered()" there and immediately end up in the cpp file where a method is defined as MainWindows slot.
 
-    In this code it is already possible to access the statusLabel (which is not defined at design time, but by code). Here we then do the different operations that the notation change affects (they will be explained later).
+In this code it is already possible to access the statusLabel (which is not defined at design time, but by code). Here we then do the different operations that the notation change affects (they will be explained later).
 
-    It should be noted that in this project "on_actionAmerican_triggered()" and "setdecimalvalidator()" have been created, one for the American mode and another for decimal. The first one from "action editor" and note that it starts with "on_" so it is automatically connected. The second was generated by code.
+It should be noted that in this project "on_actionAmerican_triggered()" and "setdecimalvalidator()" have been created, one for the American mode and another for decimal. The first one from "action editor" and note that it starts with "on_" so it is automatically connected. The second was generated by code.
 
-    "Code"
-    ========
+"Code"
+========
 
-    "setdecimalvalidator" was created in the definition of the MainWindow class as slot. It is then defined as a method of the class in the MainWindon.cpp file. This has not been created by the Qt designer but is code written in a simple or direct way, and that is why Qt does not generate the signal/slot connection and that is why we include this statement in the constructor of the MainWindow class
+"setdecimalvalidator" was created in the definition of the MainWindow class as slot. It is then defined as a method of the class in the MainWindon.cpp file. This has not been created by the Qt designer but is code written in a simple or direct way, and that is why Qt does not generate the signal/slot connection and that is why we include this statement in the constructor of the MainWindow class
 
 
         connect(ui->actionDecimal, SIGNAL(triggered()), this, SLOT(setdecimalvalidator()));
 
-     and voila...
+and voila...
 
 
-    Auto-Connection
-    ===============
+Auto-Connection
+===============
 
-    Autoconnection implies that the Qt framework takes the name of the methods defined in the slot section within the class and analyzes whether they correspond to the form:
+Autoconnection implies that the Qt framework takes the name of the methods defined in the slot section within the class and analyzes whether they correspond to the form:
         on_<sender_name>_<signal-name>
 
-    If applicable, it builds the connection automatically. The compiler generates a warning in this regard and it is interesting to give a reading on what it implies. You have to be careful not to change the name of a widget that has a signal/slot link because you can lose that connection with the potential of being a hard-to-detect bug.
+If applicable, it builds the connection automatically. The compiler generates a warning in this regard and it is interesting to give a reading on what it implies. You have to be careful not to change the name of a widget that has a signal/slot link because you can lose that connection with the potential of being a hard-to-detect bug.
 
 
 
@@ -198,9 +191,9 @@ Another validator is created for the coefficients, but slightly different. In th
 
 decmodivalidator which is a QValidator is not assigned in the MainWindows build, it is assigned when decimal mode is set, and when American mode is set another validator is set. Basically we move the same field between two validators depending on the mode chosen by the user.
 
-amermodevalidator= new QDoubleValidator(); // No range, but decimals
-amermodevalidator->setDecimals(2);
-ui->edOdd->setValidator(amermodevalidator);
+    amermodevalidator= new QDoubleValidator(); // No range, but decimals
+    amermodevalidator->setDecimals(2);
+    ui->edOdd->setValidator(amermodevalidator);
 
 
 NOTE: betvalidator, decmodivalidator have not been associated with a "parent" (although it is possible). Since they have no parent, their elimination must be encoded. In the destructor of the MainVindows class, the corresponding delete is done, which frees the use of memory and resources.
@@ -212,13 +205,13 @@ In addition, the coefficient editing wiget (edOdd) is triggering a signal to the
 The above is not good practice (I seem to remember it being an anti-design pattern). We have several options:
 
 
-    Each widget generates a signal and is associated with a slot/method that performs the operation (calculate and add to list, this is repetitive).
+Each widget generates a signal and is associated with a slot/method that performs the operation (calculate and add to list, this is repetitive).
 
-    Each widget generates a signal and points to the same slot. It is interesting and perfectly valid, but it has to be done by code, the QT designer, in the form we have used, does not make that easy for us, using the "Edit Slot/Signal" design mode if it should be possible, just not It is part of the objective of this project.
+Each widget generates a signal and points to the same slot. It is interesting and perfectly valid, but it has to be done by code, the QT designer, in the form we have used, does not make that easy for us, using the "Edit Slot/Signal" design mode if it should be possible, just not It is part of the objective of this project.
 
-    We have two signals from two different sources, which go to two different slots, one slot calls the other. This is how it is currently being done in the project. As I wanted to demonstrate that a slot/method can be called directly, this is the path taken, however the next option is best.
+We have two signals from two different sources, which go to two different slots, one slot calls the other. This is how it is currently being done in the project. As I wanted to demonstrate that a slot/method can be called directly, this is the path taken, however the next option is best.
 
-    Create a private class routine that does the calculation and adds the value to the list. Each slot makes the call to this private routine.
+Create a private class routine that does the calculation and adds the value to the list. Each slot makes the call to this private routine.
 
 
 
