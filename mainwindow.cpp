@@ -26,20 +26,20 @@ MainWindow::MainWindow(QWidget *parent)
     statusLabel = new QLabel("American notation", this);   // Creating a label to be indluded inside the statusbar
     ui->statusbar->addPermanentWidget(statusLabel); // Now belongs to the statusbar
 
-    betvalidator = new QDoubleValidator(0.0, 100000.0, 2); // with 2 decimals of precision
-    ui->edwagger->setValidator(betvalidator);
+    betValidator = new QDoubleValidator(0.0, 100000.0, 2); // with 2 decimals of precision
+    ui->edwagger->setValidator(betValidator);
 
     // Created in memory but unused until select decimal mode
-    decmodevalidator = new QDoubleValidator(1.0, 100000.0, 2); // Minimal 1, with 2 decimals of precision
+    decmodeValidator = new QDoubleValidator(1.0, 100000.0, 2); // Minimal 1, with 2 decimals of precision
 
-    amermodevalidator= new QDoubleValidator(); // No range, but decimals
-    amermodevalidator->setDecimals(2);
-    ui->edOdd->setValidator(amermodevalidator);
+    amermodeValidator= new QDoubleValidator(); // No range, but decimals
+    amermodeValidator->setDecimals(2);
+    ui->edOdd->setValidator(amermodeValidator);
 
 
-    // setdecimalvalidator() we need code the "connect"
+    // setdecimalValidator() we need code the "connect"
     // on_setdecimalvalidator()  with this name connect is automatic (https://doc.qt.io/qt-5/qobject.html#auto-connection)
-    connect(ui->actionDecimal, SIGNAL(triggered()), this, SLOT(setdecimalvalidator()));
+    connect(ui->actionDecimal, SIGNAL(triggered()), this, SLOT(setdecimalValidator()));
 
 }
 
@@ -47,8 +47,9 @@ MainWindow::~MainWindow()
 {
     // alignmentGroup, dv, decmode and statusLabel belong to MainWindow
 
-    delete decmodevalidator;  // This validator has not parent, so we need to dispose here
-    delete betvalidator;       // idem decmode
+    delete decmodeValidator;  // This validator has not parent, so we need to dispose here
+    delete betValidator;      // idem decmode
+    delete amermodeValidator;
     delete ui;
 }
 
@@ -65,14 +66,14 @@ float MainWindow::calcfactorodd(float wagger, float odd)
        // +180 (american) is 2.8 decimal.  For this; american value is divide by 100 + adding 1. 180/100 + 1 -> 2.8.
        // but, negative values like -120 are diferent  1 + 100/(American Value), so   1 - 100/(-120) ->  1.833
 
-        if (odd>=0) {
+        if (odd>=0)
             return wagger*(1+odd/100);
-        } else {
+        else
             return wagger*(1-100/odd);
-        }
+
     } else if (ui->actionDecimal->isChecked()) {
         return wagger*odd;
-    }
+    } // else if (ui->actionFractional->isChecked())  .....  pendint
 
 }
 
@@ -96,8 +97,7 @@ void MainWindow::on_btnAdd_clicked()
     rst = calcfactorodd(wagger, odd); // 1er edwagger
 
     QListWidgetItem* item;
-    for(int i = 0; i < ui->listWidget->count(); ++i)
-    {
+    for(int i = 0; i < ui->listWidget->count(); ++i) {
         item = ui->listWidget->item(i);
         rst = calcfactorodd(rst, item->text().toFloat());
     }
@@ -140,9 +140,9 @@ void MainWindow::on_edOdd_returnPressed()
 }
 
 
-void MainWindow::setdecimalvalidator()
+void MainWindow::setdecimalValidator()
 {
-    ui->edOdd->setValidator(decmodevalidator);
+    ui->edOdd->setValidator(decmodeValidator);
     ui->edOdd->setPlaceholderText("like 1.2 or 0.4");
     // ui->statusbar->showMessage("Decimal notation");
     statusLabel->setText("Decimal notation");
@@ -151,10 +151,9 @@ void MainWindow::setdecimalvalidator()
 
 void MainWindow::on_actionAmerican_triggered()
 {
-    ui->edOdd->setValidator(amermodevalidator);
+    ui->edOdd->setValidator(amermodeValidator);
     ui->edOdd->setPlaceholderText("like -120");
     // ui->statusbar->showMessage("American notation");
     statusLabel->setText("American notation");
-
 }
 

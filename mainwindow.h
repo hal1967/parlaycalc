@@ -25,15 +25,15 @@ private slots:
     void on_edOdd_textChanged(const QString &arg1);
     void on_edwagger_returnPressed();
     void on_edOdd_returnPressed();
-    void setdecimalvalidator();
+    void setdecimalValidator();
     void on_actionAmerican_triggered();
 
 private:
     Ui::MainWindow *ui;
     QActionGroup *alignmentGroup;
-    QDoubleValidator *betvalidator; // For bet
-    QDoubleValidator *decmodevalidator; // For each event in decimal mode
-    QDoubleValidator *amermodevalidator; // For each event in american mode
+    QDoubleValidator *betValidator; // For bet
+    QDoubleValidator *decmodeValidator; // For each event in decimal mode
+    QDoubleValidator *amermodeValidator; // For each event in american mode
 
     QLabel *statusLabel;
 
